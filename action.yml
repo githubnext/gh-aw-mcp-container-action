@@ -1,8 +1,6 @@
-name: GitHub Agentic Workflows MCP Proxy Action
-description:
-  Mount an MCP behind an HTTP transport to isolate the MCP from the main
-  container
-author: GitHub Next
+name: The name of your action here
+description: Provide a description here
+author: Your name or organization here
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
@@ -11,46 +9,15 @@ branding:
 
 # Define your inputs here.
 inputs:
-  type:
-    description: 'Upstream connection type (stdio or http)'
+  milliseconds:
+    description: Your input description here
     required: true
-  container:
-    description: 'Container name'
-    required: false
-  container-image:
-    description: 'Container image to run'
-    required: false
-  container-version:
-    description: 'Container version/tag'
-    required: false
-  command:
-    description: 'Command to execute for stdio type'
-    required: false
-  args:
-    description: 'JSON array of arguments for the command'
-    required: false
-  env:
-    description: 'JSON object of environment variables'
-    required: false
-  url:
-    description: 'URL for http type connection'
-    required: false
-  headers:
-    description: 'JSON object of HTTP headers'
-    required: false
-  logs-dir:
-    description: 'Directory for log files'
-    required: false
-    default: './logs'
+    default: '1000'
 
 # Define your outputs here.
 outputs:
-  url:
-    description: 'The URL of the proxy server'
-  port:
-    description: 'The port number the proxy is running on'
-  token:
-    description: 'The API token for accessing the proxy'
+  time:
+    description: Your output description here
 
 runs:
   using: node24

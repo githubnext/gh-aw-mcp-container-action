@@ -64998,18 +64998,11 @@ async function createUpstreamClient(cfg) {
     if (cfg.type === 'stdio' && cfg.command) {
         const transport = new StdioClientTransport({
             command: cfg.command,
-            args: cfg.args ?? [],
-            env: cfg.env
+            args: cfg.args ?? []
         });
         await client.connect(transport);
     }
     else if (cfg.type === 'http' && cfg.url) {
-        if (cfg.headers) {
-            // Currently the StreamableHTTPClientTransport in MCP SDK doesn't support
-            // custom headers in the constructor. This would need to be implemented
-            // via request interceptors or SDK updates.
-            coreExports.warning('Custom headers are not currently supported by the MCP SDK for HTTP transport. Headers will be ignored.');
-        }
         const transport = new StreamableHTTPClientTransport(new URL(cfg.url));
         await client.connect(transport);
     }
@@ -65125,115 +65118,23 @@ async function startProxy(input = {}) {
 }
 
 /**
- * Parse JSON input or return undefined
- */
-function parseJsonInput(name) {
-    const input = coreExports.getInput(name);
-    if (!input)
-        return undefined;
-    try {
-        const parsed = JSON.parse(input);
-        if (typeof parsed !== 'object' ||
-            parsed === null ||
-            Array.isArray(parsed)) {
-            throw new Error(`Input '${name}' must be a JSON object, received: ${Array.isArray(parsed) ? 'array' : typeof parsed}`);
-        }
-        return parsed;
-    }
-    catch (error) {
-        throw new Error(`Invalid JSON for input '${name}': ${error instanceof Error ? error.message : String(error)}`);
-    }
-}
-/**
- * Parse JSON array input or return undefined
- */
-function parseJsonArrayInput(name) {
-    const input = coreExports.getInput(name);
-    if (!input)
-        return undefined;
-    try {
-        const parsed = JSON.parse(input);
-        if (!Array.isArray(parsed)) {
-            throw new Error(`Input '${name}' must be a JSON array, received: ${typeof parsed}`);
-        }
-        return parsed;
-    }
-    catch (error) {
-        throw new Error(`Invalid JSON array for input '${name}': ${error instanceof Error ? error.message : String(error)}`);
-    }
-}
-/**
- * Validate that all values in a record are strings
- */
-function validateStringRecord(record, name) {
-    const result = {};
-    for (const [key, value] of Object.entries(record)) {
-        if (typeof value !== 'string') {
-            throw new Error(`Input '${name}' must contain only string values, but key '${key}' has type ${typeof value}`);
-        }
-        result[key] = value;
-    }
-    return result;
-}
-/**
  * The main function for the action.
  *
  * @returns Resolves when the action is complete.
  */
 async function run() {
     try {
-        const type = coreExports.getInput('type', { required: true });
-        const logsDir = coreExports.getInput('logs-dir') || './logs';
-        // Parse optional JSON inputs with validation
-        const envObj = parseJsonInput('env');
-        const env = envObj ? validateStringRecord(envObj, 'env') : undefined;
-        const headersObj = parseJsonInput('headers');
-        const headers = headersObj
-            ? validateStringRecord(headersObj, 'headers')
-            : undefined;
-        const args = parseJsonArrayInput('args');
-        // Build upstream configuration based on type
-        let upstreamConfig;
-        if (type === 'stdio') {
-            const command = coreExports.getInput('command');
-            if (!command) {
-                throw new Error("Input 'command' is required when type is 'stdio'");
-            }
-            upstreamConfig = {
-                type: 'stdio',
-                command,
-                args,
-                env
-            };
-        }
-        else if (type === 'http') {
-            const url = coreExports.getInput('url');
-            if (!url) {
-                throw new Error("Input 'url' is required when type is 'http'");
-            }
-            upstreamConfig = {
-                type: 'http',
-                url,
-                headers
-            };
-        }
-        else {
-            throw new Error(`Invalid type '${type}'. Must be 'stdio' or 'http'`);
-        }
-        // Handle container image (support both 'container' and 'container-image')
-        const containerImage = coreExports.getInput('container-image') || coreExports.getInput('container');
-        const containerVersion = coreExports.getInput('container-version');
+        const url = coreExports.getInput('url');
         const res = await startProxy({
-            logDir: logsDir,
-            upstream: upstreamConfig,
-            containerImage,
-            containerVersion
+            logDir: './logs',
+            upstream: {
+                type: 'http',
+                url
+            }
         });
-        // Set outputs
         coreExports.setOutput('url', res.url);
         coreExports.setOutput('port', res.port);
-        coreExports.setOutput('token', res.apiKey);
-        // Legacy output for backward compatibility
+        coreExports.setOutput(`api-key`, res.apiKey);
         if (res.containerId) {
             coreExports.setOutput('container-id', res.containerId);
         }
