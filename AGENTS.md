@@ -128,3 +128,14 @@ When performing a code review, please follow these guidelines:
 - If there are changes that modify the functionality/usage of the action,
   validate that there are changes in the `README.md` file that document the new
   or modified functionality
+
+## BEFORE RETURNING TO THE USER
+
+Run this command and fix any issues before returning to the user.
+
+```
+npm run all
+```
+
+This command formats, lints, run tests. It is ESSENTIAL to run this command
+BEFORE returning to the user or commiting files. Fix all issues found.
