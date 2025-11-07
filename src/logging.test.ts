@@ -29,7 +29,7 @@ vi.mock('debug', () => ({
 }))
 
 // Import the module being tested
-const { setupDebugLogging } = await import('../src/logging.js')
+const { setupDebugLogging } = await import('./logging.js')
 const debug = await import('debug')
 
 describe('logging.ts', () => {

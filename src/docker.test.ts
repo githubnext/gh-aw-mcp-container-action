@@ -11,9 +11,7 @@ vi.mock('child_process', () => ({
 }))
 
 // Import the module being tested
-const { runDockerContainer, stopDockerContainer } = await import(
-  '../src/docker.js'
-)
+const { runDockerContainer, stopDockerContainer } = await import('./docker.js')
 
 describe('docker.ts', () => {
   beforeEach(() => {
