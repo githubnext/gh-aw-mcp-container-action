@@ -134,8 +134,8 @@ To decide which phase to perform:
    configuration". Encourage the maintainer to review the files carefully to
    ensure they are appropriate for the project.
 
-5. Try to run through the steps you worked out manually one by one. If the a
-   step needs updating, then update the branch you created in step 2e. Continue
+5. Try to run through the steps you worked out manually one by one. If a step
+   needs updating, then update the branch you created in step 4. Continue
    through all the steps. If you can't get it to work, then create an issue
    describing the problem and exit the entire workflow.
 
@@ -219,7 +219,7 @@ To decide which phase to perform:
      - Include a section "Test coverage results" giving exact coverage numbers
        before and after the changes, drawing from the coverage reports, in a
        table if possible. Include changes in numbers for overall coverage. If
-       coverage numbers a guesstimates, rather than based on coverage reports,
+       coverage numbers are guesstimates, rather than based on coverage reports,
        say so. Don't blag, be honest. Include the exact commands the user will
        need to run to validate accurate coverage numbers.
      - Include a section "Replicating the test coverage measurements" with the
