@@ -13,10 +13,9 @@ Ensure you adhere to the following guidelines when creating unit tests:
 - Use descriptive test names that clearly convey their purpose
 - Ensure tests cover both the main path of success and edge cases
 - Use proper assertions to validate the expected outcomes
-- Use `jest` for writing and running tests
+- Use `vitest` for writing and running tests
 - Place unit tests in the `__tests__` directory
-- Use fixtures for any necessary test data, placed in the `__fixtures__`
-  directory
+- Use inline mocks with `vi.mock()` for mocking dependencies
 
 ## Example
 
@@ -26,13 +25,19 @@ Use the following as an example of how to structure your unit tests:
 /**
  * Unit tests for the action's main functionality, src/main.ts
  */
-import { jest } from '@jest/globals'
-import * as core from '../__fixtures__/core.js'
-import { wait } from '../__fixtures__/wait.js'
+import { vi, describe, beforeEach, afterEach, it, expect } from 'vitest'
 
-// Mocks should be declared before the module being tested is imported.
-jest.unstable_mockModule('@actions/core', () => core)
-jest.unstable_mockModule('../src/wait.js', () => ({ wait }))
+// Mock modules
+const mockCore = {
+  getInput: vi.fn(),
+  setOutput: vi.fn(),
+  setFailed: vi.fn()
+}
+
+const mockWait = vi.fn()
+
+vi.mock('@actions/core', () => mockCore)
+vi.mock('../src/wait.js', () => ({ wait: mockWait }))
 
 // The module being tested should be imported dynamically. This ensures that the
 // mocks are used in place of any actual dependencies.
@@ -41,21 +46,21 @@ const { run } = await import('../src/main.js')
 describe('main.ts', () => {
   beforeEach(() => {
     // Set the action's inputs as return values from core.getInput().
-    core.getInput.mockImplementation(() => '500')
+    mockCore.getInput.mockImplementation(() => '500')
 
     // Mock the wait function so that it does not actually wait.
-    wait.mockImplementation(() => Promise.resolve('done!'))
+    mockWait.mockImplementation(() => Promise.resolve('done!'))
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   it('Sets the time output', async () => {
     await run()
 
     // Verify the time output was set.
-    expect(core.setOutput).toHaveBeenNthCalledWith(
+    expect(mockCore.setOutput).toHaveBeenNthCalledWith(
       1,
       'time',
       // Simple regex to match a time string in the format HH:MM:SS.
@@ -65,17 +70,17 @@ describe('main.ts', () => {
 
   it('Sets a failed status', async () => {
     // Clear the getInput mock and return an invalid value.
-    core.getInput.mockClear().mockReturnValueOnce('this is not a number')
+    mockCore.getInput.mockClear().mockReturnValueOnce('this is not a number')
 
     // Clear the wait mock and return a rejected promise.
-    wait
+    mockWait
       .mockClear()
       .mockRejectedValueOnce(new Error('milliseconds is not a number'))
 
     await run()
 
     // Verify that the action was marked as failed.
-    expect(core.setFailed).toHaveBeenNthCalledWith(
+    expect(mockCore.setFailed).toHaveBeenNthCalledWith(
       1,
       'milliseconds is not a number'
     )

@@ -18,7 +18,8 @@ const config = {
     nodeResolve({ preferBuiltins: true }),
     commonjs(),
     importJson()
-  ]
+  ],
+  external: ['pkce-challenge']
 }
 
 export default config

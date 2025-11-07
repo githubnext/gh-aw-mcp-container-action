@@ -13,7 +13,6 @@ it is generated from.
 
 | Path                 | Description                                              |
 | -------------------- | -------------------------------------------------------- |
-| `__fixtures__/`      | Unit Test Fixtures                                       |
 | `__tests__/`         | Unit Tests                                               |
 | `.devcontainer/`     | Development Container Configuration                      |
 | `.github/`           | GitHub Configuration                                     |
@@ -31,7 +30,7 @@ it is generated from.
 | `action.yml`         | GitHub Action Metadata                                   |
 | `CODEOWNERS`         | Code Owners File                                         |
 | `eslint.config.mjs`  | ESLint Configuration                                     |
-| `jest.config.js`     | Jest Configuration                                       |
+| `vitest.config.ts`   | Vitest Configuration                                     |
 | `LICENSE`            | License File                                             |
 | `package.json`       | NPM Package Configuration                                |
 | `README.md`          | Project Documentation                                    |
@@ -55,7 +54,7 @@ npm run test
 ```
 
 Unit tests should exist in the `__tests__` directory. They are powered by
-`jest`. Fixtures should be placed in the `__fixtures__` directory.
+`vitest`.
 
 ## Bundling
 
@@ -128,3 +127,14 @@ When performing a code review, please follow these guidelines:
 - If there are changes that modify the functionality/usage of the action,
   validate that there are changes in the `README.md` file that document the new
   or modified functionality
+
+## BEFORE RETURNING TO THE USER
+
+Run this command and fix any issues before returning to the user.
+
+```
+npm run all
+```
+
+This command formats, lints, run tests. It is ESSENTIAL to run this command
+BEFORE returning to the user or commiting files. Fix all issues found.
