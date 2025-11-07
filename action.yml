@@ -15,10 +15,13 @@ inputs:
     description: 'Upstream connection type (stdio or http)'
     required: true
   container:
-    description: 'Container name (deprecated, use container-image)'
+    description: 'Container name'
     required: false
   container-image:
     description: 'Container image to run'
+    required: false
+  container-version:
+    description: 'Container version/tag'
     required: false
   command:
     description: 'Command to execute for stdio type'

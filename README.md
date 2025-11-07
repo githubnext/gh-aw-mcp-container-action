@@ -27,9 +27,9 @@ transport to isolate the MCP from the main container.
 
 #### General:
 
+- **`container`**: Container name
 - **`container-image`**: Container image to run
-- **`container`**: (Deprecated) Legacy container name, use `container-image`
-  instead
+- **`container-version`**: Container version/tag
 - **`logs-dir`**: Directory for log files (default: `./logs`)
 
 ## Outputs
@@ -74,34 +74,6 @@ transport to isolate the MCP from the main container.
     container-image: my-mcp-server:latest
 ```
 
-## Development
+## Contributing
 
-### Install Dependencies
-
-```bash
-npm install
-```
-
-### Run Tests
-
-```bash
-npm test
-```
-
-### Build
-
-```bash
-npm run package
-```
-
-### Lint
-
-```bash
-npm run lint
-```
-
-### Format
-
-```bash
-npm run format:write
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development instructions.

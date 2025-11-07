@@ -65222,10 +65222,12 @@ async function run() {
         }
         // Handle container image (support both 'container' and 'container-image')
         const containerImage = coreExports.getInput('container-image') || coreExports.getInput('container');
+        const containerVersion = coreExports.getInput('container-version');
         const res = await startProxy({
             logDir: logsDir,
             upstream: upstreamConfig,
-            containerImage
+            containerImage,
+            containerVersion
         });
         // Set outputs
         coreExports.setOutput('url', res.url);

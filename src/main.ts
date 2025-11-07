@@ -117,11 +117,13 @@ export async function run(): Promise<void> {
     // Handle container image (support both 'container' and 'container-image')
     const containerImage =
       core.getInput('container-image') || core.getInput('container')
+    const containerVersion = core.getInput('container-version')
 
     const res = await startProxy({
       logDir: logsDir,
       upstream: upstreamConfig,
-      containerImage
+      containerImage,
+      containerVersion
     })
 
     // Set outputs

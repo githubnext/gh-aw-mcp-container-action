@@ -136,7 +136,8 @@ describe('main.ts', () => {
         url: 'http://example.com',
         headers: { Authorization: 'Bearer token' }
       },
-      containerImage: ''
+      containerImage: '',
+      containerVersion: ''
     })
   })
 
@@ -172,7 +173,8 @@ describe('main.ts', () => {
         command: 'node',
         env: { NODE_ENV: 'production' }
       },
-      containerImage: ''
+      containerImage: '',
+      containerVersion: ''
     })
   })
 
@@ -418,7 +420,8 @@ describe('main.ts', () => {
         type: 'http',
         url: 'http://example.com'
       },
-      containerImage: 'myimage:latest'
+      containerImage: 'myimage:latest',
+      containerVersion: ''
     })
   })
 
@@ -449,7 +452,8 @@ describe('main.ts', () => {
         type: 'http',
         url: 'http://example.com'
       },
-      containerImage: 'myimage:latest'
+      containerImage: 'myimage:latest',
+      containerVersion: ''
     })
   })
 })
