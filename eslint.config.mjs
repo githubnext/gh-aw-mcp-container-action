@@ -6,6 +6,7 @@ import js from '@eslint/js'
 import typescriptEslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 import _import from 'eslint-plugin-import'
+import jest from 'eslint-plugin-jest'
 import prettier from 'eslint-plugin-prettier'
 import globals from 'globals'
 
@@ -23,11 +24,13 @@ export default [
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:jest/recommended',
     'plugin:prettier/recommended'
   ),
   {
     plugins: {
       import: fixupPluginRules(_import),
+      jest,
       prettier,
       '@typescript-eslint': typescriptEslint
     },
@@ -35,6 +38,7 @@ export default [
     languageOptions: {
       globals: {
         ...globals.node,
+        ...globals.jest,
         Atomics: 'readonly',
         SharedArrayBuffer: 'readonly'
       },
@@ -49,7 +53,7 @@ export default [
             '__fixtures__/*.ts',
             '__tests__/*.ts',
             'eslint.config.mjs',
-            'vitest.config.ts',
+            'jest.config.js',
             'rollup.config.ts'
           ]
         },

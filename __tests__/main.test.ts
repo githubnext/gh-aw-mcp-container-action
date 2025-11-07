@@ -1,97 +1,62 @@
 /**
  * Unit tests for the action's main functionality, src/main.ts
+ *
+ * To mock dependencies in ESM, you can create fixtures that export mock
+ * functions and objects. For example, the core module is mocked in this test,
+ * so that the actual '@actions/core' module is not imported.
  */
-import { vi, describe, beforeEach, afterEach, it, expect } from 'vitest'
+import { jest } from '@jest/globals'
+import * as core from '../__fixtures__/core.js'
+import { wait } from '../__fixtures__/wait.js'
 
-// Mock modules
-const mockCore = {
-  getInput: vi.fn(),
-  setOutput: vi.fn(),
-  setFailed: vi.fn(),
-  debug: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-  warning: vi.fn()
-}
+// Mocks should be declared before the module being tested is imported.
+jest.unstable_mockModule('@actions/core', () => core)
+jest.unstable_mockModule('../src/wait.js', () => ({ wait }))
 
-const mockStartProxy = vi.fn()
-
-vi.mock('@actions/core', () => mockCore)
-vi.mock('../src/server.js', () => ({
-  startProxy: mockStartProxy
-}))
-
-// Import the module being tested
+// The module being tested should be imported dynamically. This ensures that the
+// mocks are used in place of any actual dependencies.
 const { run } = await import('../src/main.js')
 
 describe('main.ts', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    // Set the action's inputs as return values from core.getInput().
+    core.getInput.mockImplementation(() => '500')
+
+    // Mock the wait function so that it does not actually wait.
+    wait.mockImplementation(() => Promise.resolve('done!'))
   })
 
   afterEach(() => {
-    vi.resetAllMocks()
+    jest.resetAllMocks()
   })
 
-  it('Sets the outputs on success', async () => {
-    // Setup mocks
-    mockCore.getInput.mockReturnValue('http://example.com')
-    mockStartProxy.mockResolvedValue({
-      url: 'http://localhost:3000',
-      port: 3000,
-      apiKey: 'test-api-key',
-      containerId: 'test-container-id'
-    })
+  it('Sets the time output', async () => {
+    await run()
+
+    // Verify the time output was set.
+    expect(core.setOutput).toHaveBeenNthCalledWith(
+      1,
+      'time',
+      // Simple regex to match a time string in the format HH:MM:SS.
+      expect.stringMatching(/^\d{2}:\d{2}:\d{2}/)
+    )
+  })
+
+  it('Sets a failed status', async () => {
+    // Clear the getInput mock and return an invalid value.
+    core.getInput.mockClear().mockReturnValueOnce('this is not a number')
+
+    // Clear the wait mock and return a rejected promise.
+    wait
+      .mockClear()
+      .mockRejectedValueOnce(new Error('milliseconds is not a number'))
 
     await run()
 
-    // Verify outputs were set
-    expect(mockCore.setOutput).toHaveBeenCalledWith(
-      'url',
-      'http://localhost:3000'
-    )
-    expect(mockCore.setOutput).toHaveBeenCalledWith('port', 3000)
-    expect(mockCore.setOutput).toHaveBeenCalledWith('api-key', 'test-api-key')
-    expect(mockCore.setOutput).toHaveBeenCalledWith(
-      'container-id',
-      'test-container-id'
-    )
-    expect(mockCore.setFailed).not.toHaveBeenCalled()
-  })
-
-  it('Sets a failed status on error', async () => {
-    // Setup mocks
-    mockCore.getInput.mockReturnValue('http://example.com')
-    mockStartProxy.mockRejectedValue(new Error('Connection failed'))
-
-    await run()
-
-    // Verify that the action was marked as failed
-    expect(mockCore.setFailed).toHaveBeenCalledWith('Connection failed')
-  })
-
-  it('Does not set container-id output when not present', async () => {
-    // Setup mocks
-    mockCore.getInput.mockReturnValue('http://example.com')
-    mockStartProxy.mockResolvedValue({
-      url: 'http://localhost:3000',
-      port: 3000,
-      apiKey: 'test-api-key'
-      // No containerId
-    })
-
-    await run()
-
-    // Verify container-id was not set
-    expect(mockCore.setOutput).toHaveBeenCalledWith(
-      'url',
-      'http://localhost:3000'
-    )
-    expect(mockCore.setOutput).toHaveBeenCalledWith('port', 3000)
-    expect(mockCore.setOutput).toHaveBeenCalledWith('api-key', 'test-api-key')
-    expect(mockCore.setOutput).not.toHaveBeenCalledWith(
-      'container-id',
-      expect.anything()
+    // Verify that the action was marked as failed.
+    expect(core.setFailed).toHaveBeenNthCalledWith(
+      1,
+      'milliseconds is not a number'
     )
   })
 })
