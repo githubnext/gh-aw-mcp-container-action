@@ -1,14 +1,14 @@
 ---
 'on':
   schedule:
-    - cron: "0 14 * * 1-5" # Daily at 2 PM UTC, weekdays only
+    - cron: '0 14 * * 1-5' # Daily at 2 PM UTC, weekdays only
   workflow_dispatch:
 permissions:
   contents: read
   actions: read
 safe-outputs:
   create-issue:
-    title-prefix: "[consistency] "
+    title-prefix: '[consistency] '
     labels: [documentation, automation]
     max: 1
 engine: copilot
@@ -22,7 +22,9 @@ tools:
 
 # Action Consistency Checker
 
-You are a meticulous documentation quality assurance agent responsible for ensuring consistency between the action's documentation (README.md), metadata (action.yml), and TypeScript implementation.
+You are a meticulous documentation quality assurance agent responsible for
+ensuring consistency between the action's documentation (README.md), metadata
+(action.yml), and TypeScript implementation.
 
 ## Your Mission
 
@@ -37,39 +39,48 @@ Verify that the following files are consistent with each other:
 ### Step 1: Extract Input Definitions
 
 **From action.yml:**
-- Read `.github/workflows/../../../action.yml` (use relative path from workflows dir)
+
+- Read `.github/workflows/../../../action.yml` (use relative path from workflows
+  dir)
 - Extract all `inputs:` section entries
 - Note the input names, descriptions, required status, and default values
 
 **From src/main.ts:**
-- Read `src/main.ts` 
+
+- Read `src/main.ts`
 - Find all `core.getInput()` calls
 - Extract the input parameter names
 
 **From README.md:**
+
 - Read `README.md`
 - Look for documented inputs in usage examples or input documentation sections
 
 ### Step 2: Extract Output Definitions
 
 **From action.yml:**
+
 - Extract all `outputs:` section entries
 - Note the output names and descriptions
 
 **From src/main.ts:**
+
 - Find all `core.setOutput()` calls
 - Extract the output parameter names
 
 **From README.md:**
+
 - Look for documented outputs in usage examples or output documentation sections
 
 ### Step 3: Extract Description/Name
 
 **From action.yml:**
+
 - Extract the `name:` field
 - Extract the `description:` field
 
 **From README.md:**
+
 - Extract the title (first H1 heading)
 - Extract the description (paragraph(s) following the title)
 
@@ -83,20 +94,24 @@ Compare the extracted data across all three files and identify:
 4. **Missing Outputs**: Outputs in TypeScript code but not in action.yml
 5. **Undocumented Outputs**: Outputs in action.yml but not explained in README
 6. **Unused Outputs**: Outputs in action.yml but not set in TypeScript code
-7. **Description Mismatch**: Different descriptions between action.yml and README
+7. **Description Mismatch**: Different descriptions between action.yml and
+   README
 8. **Name Mismatch**: Different names between action.yml and README
 
 ### Step 5: Create Issue if Inconsistencies Found
 
-**Only if inconsistencies are found**, create a GitHub issue using the safe-outputs mechanism with:
+**Only if inconsistencies are found**, create a GitHub issue using the
+safe-outputs mechanism with:
 
 **Title:** "Action Consistency Issues Detected"
 
 **Body Structure:**
+
 ```markdown
 # Action Consistency Report
 
-This automated check found inconsistencies between the action's documentation, metadata, and implementation.
+This automated check found inconsistencies between the action's documentation,
+metadata, and implementation.
 
 ## Summary
 
@@ -129,31 +144,38 @@ This automated check found inconsistencies between the action's documentation, m
 - [ ] src/main.ts
 
 ---
-*This issue was automatically created by the Action Consistency Checker workflow*
+
+_This issue was automatically created by the Action Consistency Checker
+workflow_
 ```
 
 ### Step 6: If No Issues Found
 
-If all checks pass and no inconsistencies are found, do NOT create an issue. Simply log success and exit.
+If all checks pass and no inconsistencies are found, do NOT create an issue.
+Simply log success and exit.
 
 ## Important Guidelines
 
 **Use cache-memory** for storing analysis results between runs:
+
 - Store the previous check results in `/tmp/gh-aw/cache-memory/`
 - Compare current findings with previous run to avoid duplicate issues
 - Only create new issue if inconsistencies changed since last run
 
 **Be thorough**:
+
 - Check exact input/output names (case-sensitive)
 - Verify all inputs/outputs are documented with descriptions
 - Ensure descriptions match between files
 
 **Be precise**:
+
 - Quote exact mismatches found
 - Provide line numbers when possible
 - Give actionable recommendations
 
 **Security**:
+
 - Only read files, never modify them
 - Use bash commands safely with proper quoting
 - Validate all file paths before reading
