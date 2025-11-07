@@ -53,21 +53,22 @@ steps:
   - name: Save Linter Output
     if: always()
     run: |
+      mkdir -p /tmp/gh-aw
       if [ -f "super-linter.log" ]; then
-        cp super-linter.log /tmp/linter-output.txt
+        cp super-linter.log /tmp/gh-aw/linter-output.txt
       else
-        echo "No super-linter.log file found" > /tmp/linter-output.txt
+        echo "No super-linter.log file found" > /tmp/gh-aw/linter-output.txt
       fi
       
       # Also capture GitHub step summary if available
       if [ -n "$GITHUB_STEP_SUMMARY" ]; then
-        echo "" >> /tmp/linter-output.txt
-        echo "---" >> /tmp/linter-output.txt
-        cat "$GITHUB_STEP_SUMMARY" >> /tmp/linter-output.txt 2>/dev/null || true
+        echo "" >> /tmp/gh-aw/linter-output.txt
+        echo "---" >> /tmp/gh-aw/linter-output.txt
+        cat "$GITHUB_STEP_SUMMARY" >> /tmp/gh-aw/linter-output.txt 2>/dev/null || true
       fi
 tools:
   bash:
-    - 'cat /tmp/linter-output.txt'
+    - 'cat /tmp/gh-aw/linter-output.txt'
 ---
 
 # Super Linter Analysis Report
@@ -82,7 +83,7 @@ You are an expert code quality analyst. Your task is to analyze the super-linter
 
 ## Your Task
 
-1. **Read the linter output** from `/tmp/linter-output.txt` using the bash tool
+1. **Read the linter output** from `/tmp/gh-aw/linter-output.txt` using the bash tool
 2. **Analyze the findings**:
    - Categorize errors by severity (critical, high, medium, low)
    - Group errors by file or linter type
