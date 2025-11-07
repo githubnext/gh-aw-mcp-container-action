@@ -1,7 +1,6 @@
 // mcp-proxy-preaction.ts
 import fs from 'node:fs'
 import path from 'node:path'
-import net from 'node:net'
 import { randomBytes } from 'node:crypto'
 import http from 'node:http'
 import debug from 'debug'
@@ -13,6 +12,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 import { Server as McpServer } from '@modelcontextprotocol/sdk/server/index.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
+import { findFreePort } from './port.js'
 
 interface UpstreamConfig {
   type: 'stdio' | 'http'
@@ -35,25 +35,6 @@ interface ActionInput {
   containerImage?: string
   containerVersion?: string
   containerPort?: number
-}
-
-async function findFreePort(
-  preferred?: number,
-  host = '127.0.0.1'
-): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const server = net.createServer()
-    server.listen(preferred ?? 0, host, () => {
-      const address = server.address()
-      if (!address || typeof address === 'string') {
-        server.close()
-        return reject(new Error('Unable to get address'))
-      }
-      const port = address.port
-      server.close(() => resolve(port))
-    })
-    server.on('error', reject)
-  })
 }
 
 function setupDebugLogging(logDir: string): debug.Debugger {
