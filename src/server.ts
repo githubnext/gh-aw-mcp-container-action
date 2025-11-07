@@ -1,4 +1,3 @@
-// mcp-proxy-preaction.ts
 import { randomBytes } from 'node:crypto'
 import http from 'node:http'
 
@@ -127,7 +126,7 @@ async function startHttpProxy(
   return `http://${host}:${port}/mcp`
 }
 
-async function startProxy(input: Partial<ActionInput> = {}): Promise<void> {
+export async function startProxy(input: Partial<ActionInput> = {}) {
   const cfg: ActionInput = {
     logDir: input.logDir ?? './logs',
     listen: {
@@ -180,7 +179,6 @@ async function startProxy(input: Partial<ActionInput> = {}): Promise<void> {
   log(`HTTP proxy listening at ${url}`)
 
   const output = { apiKey, port: portListen, url, containerId }
-  console.log(JSON.stringify(output, null, 2))
 
   process.on('SIGINT', () => {
     if (containerId) {
@@ -189,11 +187,6 @@ async function startProxy(input: Partial<ActionInput> = {}): Promise<void> {
     }
     process.exit(0)
   })
-}
 
-if (import.meta.main) {
-  await startProxy().catch((err) => {
-    console.error(err)
-    process.exit(1)
-  })
+  return output
 }
