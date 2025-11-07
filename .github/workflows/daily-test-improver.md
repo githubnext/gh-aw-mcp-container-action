@@ -44,7 +44,7 @@ steps:
         echo "exists=false" >> $GITHUB_OUTPUT
       fi
     shell: bash
-  - name:
+  - name: >-
       Build the project and produce coverage report, logging to
       coverage-steps.log
     if: steps.check_coverage_steps_file.outputs.exists == 'true'
@@ -104,10 +104,10 @@ To decide which phase to perform:
 
 ## Phase 2 - Coverage steps inference and configuration
 
-1. Check if an open pull request with title "${{ github.workflow }} - Updates to
-   complete configuration" exists in this repo. If it does, add a comment to the
-   pull request saying configuration needs to be completed, then exit the
-   workflow.
+1. Check if an open pull request with title exactly matching
+   "${{ github.workflow }} - Updates to complete configuration" exists in this
+   repo. If it does, add a comment to the pull request saying configuration
+   needs to be completed, then exit the workflow.
 
 2. Have a careful think about the CI commands needed to build the repository,
    run tests, produce a combined coverage report and upload it as an artifact.
@@ -172,7 +172,7 @@ To decide which phase to perform:
    things was there. These are your notes from last time you did your work, and
    may include useful recommendations for future areas to work on.
 
-   d. Check for existing open pull opened by you starting with title
+   d. Check for existing open pull request opened by you starting with title
    "${{ github.workflow }}". Don't repeat work from any open pull requests.
 
    e. If you think the plan is inadequate and needs a refresh, add a comment to
@@ -181,7 +181,7 @@ To decide which phase to perform:
    updated. Then continue to step (f).
 
    f. Based on all of the above, select an area of relatively low coverage to
-   work on that appear tractable for further test additions.
+   work on that appears tractable for further test additions.
 
 2. **Do the work**. Do the following:
 
