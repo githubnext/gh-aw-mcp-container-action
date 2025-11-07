@@ -39,13 +39,14 @@ steps:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       LINTER_RULES_PATH: .
       VALIDATE_ALL_CODEBASE: true
-      VALIDATE_BIOME_FORMAT: false
-      VALIDATE_BIOME_LINT: false
-      VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
-      VALIDATE_JAVASCRIPT_ES: false
-      VALIDATE_JSCPD: false
-      VALIDATE_TYPESCRIPT_ES: false
-      VALIDATE_JSON: false
+      # Disable linters that are covered by other workflows or not applicable
+      VALIDATE_BIOME_FORMAT: false  # Prettier is used instead
+      VALIDATE_BIOME_LINT: false    # ESLint is used instead
+      VALIDATE_GITHUB_ACTIONS_ZIZMOR: false  # Separate security workflow
+      VALIDATE_JAVASCRIPT_ES: false  # ESLint handles JS/TS linting
+      VALIDATE_JSCPD: false          # Copy-paste detection not required
+      VALIDATE_TYPESCRIPT_ES: false  # ESLint handles TypeScript
+      VALIDATE_JSON: false           # Not strictly enforced in this project
       LOG_FILE: super-linter.log
       CREATE_LOG_FILE: true
   
@@ -67,8 +68,6 @@ steps:
 tools:
   bash:
     - 'cat /tmp/linter-output.txt'
-    - 'ls -la'
-    - 'find . -name "*.log"'
   edit:
 ---
 
