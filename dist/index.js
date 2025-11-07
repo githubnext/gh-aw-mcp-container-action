@@ -65004,10 +65004,13 @@ async function createUpstreamClient(cfg) {
         await client.connect(transport);
     }
     else if (cfg.type === 'http' && cfg.url) {
+        if (cfg.headers) {
+            // Currently the StreamableHTTPClientTransport in MCP SDK doesn't support
+            // custom headers in the constructor. This would need to be implemented
+            // via request interceptors or SDK updates.
+            console.warn('Warning: Custom headers are not currently supported by the MCP SDK for HTTP transport. Headers will be ignored.');
+        }
         const transport = new StreamableHTTPClientTransport(new URL(cfg.url));
-        // Note: StreamableHTTPClientTransport doesn't support custom headers in constructor
-        // If headers are needed, they would need to be added via request interceptors
-        if (cfg.headers) ;
         await client.connect(transport);
     }
     else {
@@ -65145,7 +65148,7 @@ function parseJsonArrayInput(name) {
     try {
         const parsed = JSON.parse(input);
         if (!Array.isArray(parsed)) {
-            throw new Error(`Input '${name}' must be a JSON array`);
+            throw new Error(`Input '${name}' must be a JSON array, received: ${typeof parsed}`);
         }
         return parsed;
     }

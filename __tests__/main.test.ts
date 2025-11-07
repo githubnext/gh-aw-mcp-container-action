@@ -281,6 +281,28 @@ describe('main.ts', () => {
     )
   })
 
+  it('Fails when args input is not an array', async () => {
+    mockCore.getInput.mockImplementation((name: string) => {
+      switch (name) {
+        case 'type':
+          return 'stdio'
+        case 'command':
+          return 'node'
+        case 'args':
+          return '{"not": "an array"}'
+        default:
+          return ''
+      }
+    })
+
+    await run()
+
+    expect(mockCore.setFailed).toHaveBeenCalled()
+    expect(mockCore.setFailed.mock.calls[0][0]).toContain(
+      "Input 'args' must be a JSON array, received: object"
+    )
+  })
+
   it('Fails when env input is invalid JSON', async () => {
     mockCore.getInput.mockImplementation((name: string) => {
       switch (name) {

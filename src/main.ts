@@ -25,7 +25,9 @@ function parseJsonArrayInput(name: string): string[] | undefined {
   try {
     const parsed = JSON.parse(input)
     if (!Array.isArray(parsed)) {
-      throw new Error(`Input '${name}' must be a JSON array`)
+      throw new Error(
+        `Input '${name}' must be a JSON array, received: ${typeof parsed}`
+      )
     }
     return parsed
   } catch (error) {
