@@ -1,10 +1,6 @@
 // mcp-proxy-preaction.ts
-import fs from 'node:fs'
-import path from 'node:path'
 import { randomBytes } from 'node:crypto'
 import http from 'node:http'
-import debug from 'debug'
-import { spawnSync } from 'node:child_process'
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
@@ -13,6 +9,8 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { Server as McpServer } from '@modelcontextprotocol/sdk/server/index.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { findFreePort } from './port.js'
+import { runDockerContainer, stopDockerContainer } from './docker.js'
+import { setupDebugLogging } from './logging.js'
 
 interface UpstreamConfig {
   type: 'stdio' | 'http'
@@ -35,21 +33,6 @@ interface ActionInput {
   containerImage?: string
   containerVersion?: string
   containerPort?: number
-}
-
-function setupDebugLogging(logDir: string): debug.Debugger {
-  fs.mkdirSync(logDir, { recursive: true })
-  const logfile = path.join(logDir, `mcp-proxy-${Date.now()}.log`)
-  const stream = fs.createWriteStream(logfile, { flags: 'a' })
-  const log = debug('mcp:proxy')
-  const origLog = (debug as any).log
-  ;(debug as any).log = (...args: any[]) => {
-    const line = args.join(' ') + '\n'
-    origLog?.(...args)
-    stream.write(line)
-  }
-  log(`Logging to ${logfile}`)
-  return log
 }
 
 async function createUpstreamClient(cfg: UpstreamConfig): Promise<Client> {
@@ -144,31 +127,6 @@ async function startHttpProxy(
   return `http://${host}:${port}/mcp`
 }
 
-function runDockerContainer(
-  image: string,
-  version: string,
-  hostPort: number,
-  containerPort: number
-): string {
-  const args = [
-    'run',
-    '-d',
-    '--rm',
-    '-p',
-    `${hostPort}:${containerPort}`,
-    `${image}:${version}`
-  ]
-  const result = spawnSync('docker', args, { encoding: 'utf8' })
-  if (result.status !== 0) {
-    throw new Error(`docker run failed: ${result.stderr}`)
-  }
-  return result.stdout.trim()
-}
-
-function stopDockerContainer(containerId: string): void {
-  spawnSync('docker', ['stop', containerId])
-}
-
 async function startProxy(input: Partial<ActionInput> = {}): Promise<void> {
   const cfg: ActionInput = {
     logDir: input.logDir ?? './logs',
@@ -185,7 +143,7 @@ async function startProxy(input: Partial<ActionInput> = {}): Promise<void> {
   }
 
   const log = setupDebugLogging(cfg.logDir)
-  log('Starting MCP proxy (SDK v1.21.0) pre-script…')
+  log('Starting MCP proxy')
 
   let upstreamUrl: string | undefined
   let containerId: string | undefined
