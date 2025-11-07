@@ -18,10 +18,20 @@ const getColour = (coverage) => {
   return 'brightgreen'
 }
 
+const getColorHex = colour => {
+  const colorMap = {
+    brightgreen: '97ca00',
+    yellow: 'dfb317',
+    red: 'e05d44'
+  }
+  return colorMap[colour] || colorMap.red
+}
+
 const generateBadgeSVG = (coverage, colour) => {
   const coverageText = `${coverage}%`
-  const labelWidth = 59
-  const valueWidth = 40
+  // Badge dimensions matching shields.io standard badge sizes
+  const labelWidth = 59 // Width for "Coverage" label
+  const valueWidth = 40 // Width for percentage value
   const totalWidth = labelWidth + valueWidth
 
   return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${totalWidth}" height="20" role="img" aria-label="Coverage: ${coverageText}">
@@ -35,7 +45,7 @@ const generateBadgeSVG = (coverage, colour) => {
   </clipPath>
   <g clip-path="url(#r)">
     <rect width="${labelWidth}" height="20" fill="#555"/>
-    <rect x="${labelWidth}" width="${valueWidth}" height="20" fill="#${colour === 'brightgreen' ? '97ca00' : colour === 'yellow' ? 'dfb317' : 'e05d44'}"/>
+    <rect x="${labelWidth}" width="${valueWidth}" height="20" fill="#${getColorHex(colour)}"/>
     <rect width="${totalWidth}" height="20" fill="url(#s)"/>
   </g>
   <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110">
