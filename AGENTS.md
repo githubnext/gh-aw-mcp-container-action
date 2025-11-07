@@ -158,7 +158,7 @@ This naming pattern makes it easy to filter logs by component when debugging.
 log('API key configured: %s', apiKey ? 'yes' : 'no')
 
 // ✅ SAFE: Log a masked or truncated version
-log('API key (first 8 chars): %s...', apiKey.substring(0, 8))
+log('API key (first 8 chars): %s...', apiKey?.substring(0, 8) || 'not set')
 
 // ❌ UNSAFE: Never log the full secret
 // log('API key: %s', apiKey)  // DON'T DO THIS!
@@ -193,7 +193,10 @@ export async function myFunction(param: string): Promise<void> {
     // ... perform operation ...
     log('Operation completed successfully')
   } catch (error) {
-    log('Operation failed: %s', (error as Error).message)
+    log(
+      'Operation failed: %s',
+      error instanceof Error ? error.message : String(error)
+    )
     throw error
   }
 }
