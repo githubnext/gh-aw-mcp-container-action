@@ -86,10 +86,10 @@ maintain consistency across the codebase.
 **Example:**
 
 ```typescript
-import debug from 'debug'
+import { createLogger } from './logging.js'
 
 // Create a dedicated logger for this file
-const log = debug('mcp:server')
+const log = createLogger('server')
 
 // Use the logger throughout your code
 log('Starting MCP proxy')
@@ -168,8 +168,8 @@ log('API key (first 8 chars): %s...', apiKey?.substring(0, 8) || 'not set')
 
 When adding new functionality:
 
-1. Import `debug` at the top of your file
-2. Create a dedicated logger instance with a unique namespace
+1. Import `createLogger` from `./logging.js` at the top of your file
+2. Create a dedicated logger instance with a unique name for your file
 3. Add log statements at key execution points:
    - Function entry points
    - Before/after important operations
@@ -181,9 +181,9 @@ When adding new functionality:
 **Example pattern:**
 
 ```typescript
-import debug from 'debug'
+import { createLogger } from './logging.js'
 
-const log = debug('mcp:myfile')
+const log = createLogger('myfile')
 
 export async function myFunction(param: string): Promise<void> {
   log('myFunction called with param: %s', param)

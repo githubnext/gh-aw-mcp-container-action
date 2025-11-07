@@ -16,3 +16,12 @@ export function setupDebugLogging(logDir: string): debug.Debugger {
   log(`Logging to ${logfile}`)
   return log
 }
+
+/**
+ * Create a logger for a specific file/component.
+ * @param name - The name of the file/component (e.g., 'server', 'docker', 'port')
+ * @returns A debug logger instance with namespace 'mcp:<name>'
+ */
+export function createLogger(name: string): debug.Debugger {
+  return debug(`mcp:${name}`)
+}
