@@ -1,5 +1,5 @@
 ---
-on:
+'on':
   schedule:
     - cron: "0 14 * * 1-5" # Daily at 2 PM UTC, weekdays only
   workflow_dispatch:
