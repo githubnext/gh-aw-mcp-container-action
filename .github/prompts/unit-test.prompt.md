@@ -15,8 +15,7 @@ Ensure you adhere to the following guidelines when creating unit tests:
 - Use proper assertions to validate the expected outcomes
 - Use `vitest` for writing and running tests
 - Place unit tests in the `__tests__` directory
-- Use fixtures for any necessary test data, placed in the `__fixtures__`
-  directory
+- Use inline mocks with `vi.mock()` for mocking dependencies
 
 ## Example
 
