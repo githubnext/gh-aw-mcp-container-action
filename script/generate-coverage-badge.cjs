@@ -18,7 +18,7 @@ const getColour = (coverage) => {
   return 'brightgreen'
 }
 
-const getColorHex = colour => {
+const getColorHex = (colour) => {
   const colorMap = {
     brightgreen: '97ca00',
     yellow: 'dfb317',
