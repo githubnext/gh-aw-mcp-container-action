@@ -8,7 +8,17 @@ function parseJsonInput(name: string): Record<string, unknown> | undefined {
   const input = core.getInput(name)
   if (!input) return undefined
   try {
-    return JSON.parse(input)
+    const parsed = JSON.parse(input)
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
+      throw new Error(
+        `Input '${name}' must be a JSON object, received: ${Array.isArray(parsed) ? 'array' : typeof parsed}`
+      )
+    }
+    return parsed
   } catch (error) {
     throw new Error(
       `Invalid JSON for input '${name}': ${error instanceof Error ? error.message : String(error)}`
@@ -38,6 +48,25 @@ function parseJsonArrayInput(name: string): string[] | undefined {
 }
 
 /**
+ * Validate that all values in a record are strings
+ */
+function validateStringRecord(
+  record: Record<string, unknown>,
+  name: string
+): Record<string, string> {
+  const result: Record<string, string> = {}
+  for (const [key, value] of Object.entries(record)) {
+    if (typeof value !== 'string') {
+      throw new Error(
+        `Input '${name}' must contain only string values, but key '${key}' has type ${typeof value}`
+      )
+    }
+    result[key] = value
+  }
+  return result
+}
+
+/**
  * The main function for the action.
  *
  * @returns Resolves when the action is complete.
@@ -47,11 +76,15 @@ export async function run(): Promise<void> {
     const type = core.getInput('type', { required: true })
     const logsDir = core.getInput('logs-dir') || './logs'
 
-    // Parse optional JSON inputs
-    const env = parseJsonInput('env') as Record<string, string> | undefined
-    const headers = parseJsonInput('headers') as
-      | Record<string, string>
-      | undefined
+    // Parse optional JSON inputs with validation
+    const envObj = parseJsonInput('env')
+    const env = envObj ? validateStringRecord(envObj, 'env') : undefined
+
+    const headersObj = parseJsonInput('headers')
+    const headers = headersObj
+      ? validateStringRecord(headersObj, 'headers')
+      : undefined
+
     const args = parseJsonArrayInput('args')
 
     // Build upstream configuration based on type

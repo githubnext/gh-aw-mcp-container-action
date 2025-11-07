@@ -65008,7 +65008,7 @@ async function createUpstreamClient(cfg) {
             // Currently the StreamableHTTPClientTransport in MCP SDK doesn't support
             // custom headers in the constructor. This would need to be implemented
             // via request interceptors or SDK updates.
-            console.warn('Warning: Custom headers are not currently supported by the MCP SDK for HTTP transport. Headers will be ignored.');
+            coreExports.warning('Custom headers are not currently supported by the MCP SDK for HTTP transport. Headers will be ignored.');
         }
         const transport = new StreamableHTTPClientTransport(new URL(cfg.url));
         await client.connect(transport);
@@ -65132,7 +65132,13 @@ function parseJsonInput(name) {
     if (!input)
         return undefined;
     try {
-        return JSON.parse(input);
+        const parsed = JSON.parse(input);
+        if (typeof parsed !== 'object' ||
+            parsed === null ||
+            Array.isArray(parsed)) {
+            throw new Error(`Input '${name}' must be a JSON object, received: ${Array.isArray(parsed) ? 'array' : typeof parsed}`);
+        }
+        return parsed;
     }
     catch (error) {
         throw new Error(`Invalid JSON for input '${name}': ${error instanceof Error ? error.message : String(error)}`);
@@ -65157,6 +65163,19 @@ function parseJsonArrayInput(name) {
     }
 }
 /**
+ * Validate that all values in a record are strings
+ */
+function validateStringRecord(record, name) {
+    const result = {};
+    for (const [key, value] of Object.entries(record)) {
+        if (typeof value !== 'string') {
+            throw new Error(`Input '${name}' must contain only string values, but key '${key}' has type ${typeof value}`);
+        }
+        result[key] = value;
+    }
+    return result;
+}
+/**
  * The main function for the action.
  *
  * @returns Resolves when the action is complete.
@@ -65165,9 +65184,13 @@ async function run() {
     try {
         const type = coreExports.getInput('type', { required: true });
         const logsDir = coreExports.getInput('logs-dir') || './logs';
-        // Parse optional JSON inputs
-        const env = parseJsonInput('env');
-        const headers = parseJsonInput('headers');
+        // Parse optional JSON inputs with validation
+        const envObj = parseJsonInput('env');
+        const env = envObj ? validateStringRecord(envObj, 'env') : undefined;
+        const headersObj = parseJsonInput('headers');
+        const headers = headersObj
+            ? validateStringRecord(headersObj, 'headers')
+            : undefined;
         const args = parseJsonArrayInput('args');
         // Build upstream configuration based on type
         let upstreamConfig;
