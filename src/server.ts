@@ -13,7 +13,6 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 import { Server as McpServer } from '@modelcontextprotocol/sdk/server/index.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
-import { JSONRPCRequestSchema } from '@modelcontextprotocol/sdk/types.js'
 
 interface UpstreamConfig {
   type: 'stdio' | 'http'
@@ -104,9 +103,10 @@ function createProxyServer(upstream: Client): McpServer {
     }
   )
 
+  // Forward all requests to upstream
   server.setRequestHandler(
-    JSONRPCRequestSchema,
-    async (req: typeof JSONRPCRequestSchema._type) => {
+    { method: 'tools/list' } as any,
+    async (req: any) => {
       const transport = (upstream as any).transport
       if (!transport || typeof transport.request !== 'function') {
         throw new Error('Upstream transport missing request()')
