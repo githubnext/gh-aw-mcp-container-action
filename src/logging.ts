@@ -7,8 +7,8 @@ export function setupDebugLogging(logDir: string): debug.Debugger {
   const logfile = path.join(logDir, `mcp-proxy-${Date.now()}.log`)
   const stream = fs.createWriteStream(logfile, { flags: 'a' })
   const log = debug('mcp')
-  const origLog = (debug as debug.Debug).log
-  ;(debug as debug.Debug).log = (...args: unknown[]) => {
+  const origLog = debug.log
+  debug.log = (...args: unknown[]) => {
     const line = args.join(' ') + '\n'
     origLog?.(...args)
     stream.write(line)
