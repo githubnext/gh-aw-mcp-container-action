@@ -16,7 +16,9 @@ interface UpstreamConfig {
   type: 'stdio' | 'http'
   command?: string
   args?: string[]
+  env?: Record<string, string>
   url?: string
+  headers?: Record<string, string>
 }
 
 interface ListenConfig {
@@ -49,11 +51,19 @@ async function createUpstreamClient(cfg: UpstreamConfig): Promise<Client> {
   if (cfg.type === 'stdio' && cfg.command) {
     const transport = new StdioClientTransport({
       command: cfg.command,
-      args: cfg.args ?? []
+      args: cfg.args ?? [],
+      env: cfg.env
     })
     await client.connect(transport)
   } else if (cfg.type === 'http' && cfg.url) {
     const transport = new StreamableHTTPClientTransport(new URL(cfg.url))
+    // Note: StreamableHTTPClientTransport doesn't support custom headers in constructor
+    // If headers are needed, they would need to be added via request interceptors
+    if (cfg.headers) {
+      // Store headers for potential future use
+      // Currently the SDK doesn't expose a direct way to set custom headers
+      // This would need to be implemented if required
+    }
     await client.connect(transport)
   } else {
     throw new Error('Invalid upstream configuration')
