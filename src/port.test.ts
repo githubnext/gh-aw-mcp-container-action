@@ -20,7 +20,7 @@ vi.mock('node:net', () => ({
 }))
 
 // Import the module being tested
-const { findFreePort } = await import('../src/port.js')
+const { findFreePort } = await import('./port.js')
 
 describe('port.ts', () => {
   beforeEach(() => {

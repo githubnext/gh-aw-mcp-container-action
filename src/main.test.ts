@@ -17,12 +17,12 @@ const mockCore = {
 const mockStartProxy = vi.fn()
 
 vi.mock('@actions/core', () => mockCore)
-vi.mock('../src/server.js', () => ({
+vi.mock('./server.js', () => ({
   startProxy: mockStartProxy
 }))
 
 // Import the module being tested
-const { run } = await import('../src/main.js')
+const { run } = await import('./main.js')
 
 describe('main.ts', () => {
   beforeEach(() => {

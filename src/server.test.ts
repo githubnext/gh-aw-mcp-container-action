@@ -68,21 +68,21 @@ vi.mock('@modelcontextprotocol/sdk/types.js', () => ({
   ListToolsRequestSchema: {}
 }))
 
-vi.mock('../src/port.js', () => ({
+vi.mock('./port.js', () => ({
   findFreePort: mockFindFreePort
 }))
 
-vi.mock('../src/docker.js', () => ({
+vi.mock('./docker.js', () => ({
   runDockerContainer: mockRunDockerContainer,
   stopDockerContainer: mockStopDockerContainer
 }))
 
-vi.mock('../src/logging.js', () => ({
+vi.mock('./logging.js', () => ({
   setupDebugLogging: mockSetupDebugLogging
 }))
 
 // Import the module being tested
-const { startProxy } = await import('../src/server.js')
+const { startProxy } = await import('./server.js')
 
 describe('server.ts', () => {
   beforeEach(() => {
