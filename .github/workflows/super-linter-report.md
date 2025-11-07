@@ -68,7 +68,6 @@ steps:
 tools:
   bash:
     - 'cat /tmp/linter-output.txt'
-  edit:
 ---
 
 # Super Linter Analysis Report
