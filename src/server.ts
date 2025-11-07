@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import http from 'node:http'
 
+import * as core from '@actions/core'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
@@ -16,7 +17,9 @@ interface UpstreamConfig {
   type: 'stdio' | 'http'
   command?: string
   args?: string[]
+  env?: Record<string, string>
   url?: string
+  headers?: Record<string, string>
 }
 
 interface ListenConfig {
@@ -49,10 +52,19 @@ async function createUpstreamClient(cfg: UpstreamConfig): Promise<Client> {
   if (cfg.type === 'stdio' && cfg.command) {
     const transport = new StdioClientTransport({
       command: cfg.command,
-      args: cfg.args ?? []
+      args: cfg.args ?? [],
+      env: cfg.env
     })
     await client.connect(transport)
   } else if (cfg.type === 'http' && cfg.url) {
+    if (cfg.headers) {
+      // Currently the StreamableHTTPClientTransport in MCP SDK doesn't support
+      // custom headers in the constructor. This would need to be implemented
+      // via request interceptors or SDK updates.
+      core.warning(
+        'Custom headers are not currently supported by the MCP SDK for HTTP transport. Headers will be ignored.'
+      )
+    }
     const transport = new StreamableHTTPClientTransport(new URL(cfg.url))
     await client.connect(transport)
   } else {
