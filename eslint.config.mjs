@@ -48,6 +48,7 @@ export default [
           allowDefaultProject: [
             '__fixtures__/*.ts',
             '__tests__/*.ts',
+            'src/*.test.ts',
             'eslint.config.mjs',
             'vitest.config.ts',
             'rollup.config.ts'
