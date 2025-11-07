@@ -7,6 +7,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 import { Server as McpServer } from '@modelcontextprotocol/sdk/server/index.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
+import { ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js'
 import { findFreePort } from './port.js'
 import { runDockerContainer, stopDockerContainer } from './docker.js'
 import { setupDebugLogging } from './logging.js'
@@ -32,6 +33,15 @@ interface ActionInput {
   containerImage?: string
   containerVersion?: string
   containerPort?: number
+}
+
+interface McpRequest {
+  method: string
+  params?: Record<string, unknown>
+}
+
+interface McpTransport {
+  request: (method: string, params: Record<string, unknown>) => Promise<unknown>
 }
 
 async function createUpstreamClient(cfg: UpstreamConfig): Promise<Client> {
@@ -67,17 +77,15 @@ function createProxyServer(upstream: Client): McpServer {
   )
 
   // Forward all requests to upstream
-  server.setRequestHandler(
-    { method: 'tools/list' } as any,
-    async (req: any) => {
-      const transport = (upstream as any).transport
-      if (!transport || typeof transport.request !== 'function') {
-        throw new Error('Upstream transport missing request()')
-      }
-      const result = await transport.request(req.method, req.params ?? {})
-      return result
+  server.setRequestHandler(ListToolsRequestSchema, async (req: McpRequest) => {
+    const transport = (upstream as unknown as { transport: McpTransport })
+      .transport
+    if (!transport || typeof transport.request !== 'function') {
+      throw new Error('Upstream transport missing request()')
     }
-  )
+    const result = await transport.request(req.method, req.params ?? {})
+    return result as Record<string, unknown>
+  })
 
   return server
 }

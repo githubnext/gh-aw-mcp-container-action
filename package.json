@@ -26,6 +26,7 @@
     "install:gh-aw": "gh extension install githubnext/gh-aw",
     "bundle": "npm run format:write && npm run package",
     "ci-test": "vitest run",
+    "compile:workflows": "gh aw compile --strict --actionlint --zizmor --poutine",
     "coverage": "npx make-coverage-badge --output-path ./badges/coverage.svg",
     "format:write": "npx prettier --write .",
     "format:check": "npx prettier --check .",

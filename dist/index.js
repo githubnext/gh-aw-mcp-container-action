@@ -65023,8 +65023,9 @@ function createProxyServer(upstream) {
         }
     });
     // Forward all requests to upstream
-    server.setRequestHandler({ method: 'tools/list' }, async (req) => {
-        const transport = upstream.transport;
+    server.setRequestHandler(ListToolsRequestSchema, async (req) => {
+        const transport = upstream
+            .transport;
         if (!transport || typeof transport.request !== 'function') {
             throw new Error('Upstream transport missing request()');
         }
