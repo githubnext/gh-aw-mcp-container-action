@@ -65,6 +65,156 @@ command to bundle the TypeScript code into JavaScript:
 npm run bundle
 ```
 
+## Logging and Tracing
+
+This project uses the [`debug`](https://www.npmjs.com/package/debug) package for
+logging and tracing. The `debug` package provides a lightweight, performant
+logging solution with namespaced loggers and printf-style formatting.
+
+### Setting Up Logging
+
+The `src/logging.ts` file provides a `setupDebugLogging()` function that
+configures the debug logging system to write logs to both the console and to log
+files in the specified directory.
+
+### Using Debug Loggers in Your Code
+
+Each TypeScript file should create its own dedicated logger instance using a
+unique namespace. The namespace should follow the pattern `mcp:<filename>` to
+maintain consistency across the codebase.
+
+**Example:**
+
+```typescript
+import debug from 'debug'
+
+// Create a dedicated logger for this file
+const log = debug('mcp:server')
+
+// Use the logger throughout your code
+log('Starting MCP proxy')
+log('Connected to upstream client at %s', url)
+log('Listening on port %d with host %s', port, host)
+```
+
+### Printf-Style Formatting
+
+The `debug` package supports printf-style formatting for efficient string
+interpolation. This approach is more performant than template literals because
+the formatting only occurs when the debug namespace is enabled.
+
+**Supported format specifiers:**
+
+- `%s` - String
+- `%d` - Number (both integer and float)
+- `%j` - JSON (serializes objects)
+- `%o` - Object (pretty-prints with indentation)
+- `%%` - Literal percent sign
+
+**Examples:**
+
+```typescript
+// String formatting
+log('Processing request for user %s', username)
+
+// Number formatting
+log('Port %d is now listening', port)
+
+// JSON formatting
+log('Configuration: %j', config)
+
+// Object formatting (for debugging complex objects)
+log('Server state: %o', serverState)
+
+// Multiple placeholders
+log('Container %s started on port %d', containerId, port)
+```
+
+### Logger Naming Conventions
+
+Use descriptive namespaces that identify the source file:
+
+- `mcp:server` - for `src/server.ts`
+- `mcp:docker` - for `src/docker.ts`
+- `mcp:port` - for `src/port.ts`
+- `mcp:main` - for `src/main.ts`
+
+This naming pattern makes it easy to filter logs by component when debugging.
+
+### Security Considerations
+
+**CRITICAL**: Never log sensitive information such as:
+
+- API keys, tokens, or authentication credentials
+- Passwords or secrets
+- Private keys or certificates
+- Personally identifiable information (PII)
+- Session identifiers
+
+**Safe logging examples:**
+
+```typescript
+// ✅ SAFE: Log the existence of an API key without revealing it
+log('API key configured: %s', apiKey ? 'yes' : 'no')
+
+// ✅ SAFE: Log a masked or truncated version
+log('API key (first 8 chars): %s...', apiKey.substring(0, 8))
+
+// ❌ UNSAFE: Never log the full secret
+// log('API key: %s', apiKey)  // DON'T DO THIS!
+```
+
+### Adding Logging to New Code
+
+When adding new functionality:
+
+1. Import `debug` at the top of your file
+2. Create a dedicated logger instance with a unique namespace
+3. Add log statements at key execution points:
+   - Function entry points
+   - Before/after important operations
+   - Error conditions and exceptions
+   - State transitions
+4. Use printf-style formatting for performance
+5. Review your log statements to ensure no secrets are logged
+
+**Example pattern:**
+
+```typescript
+import debug from 'debug'
+
+const log = debug('mcp:myfile')
+
+export async function myFunction(param: string): Promise<void> {
+  log('myFunction called with param: %s', param)
+
+  try {
+    log('Starting important operation')
+    // ... perform operation ...
+    log('Operation completed successfully')
+  } catch (error) {
+    log('Operation failed: %s', (error as Error).message)
+    throw error
+  }
+}
+```
+
+### Enabling Debug Output
+
+To enable debug output when running the action locally, set the `DEBUG`
+environment variable:
+
+```bash
+# Enable all mcp loggers
+DEBUG=mcp:* npm run local-action
+
+# Enable specific logger
+DEBUG=mcp:server npm run local-action
+
+# Enable multiple specific loggers
+DEBUG=mcp:server,mcp:docker npm run local-action
+```
+
 ## General Coding Guidelines
 
 - Follow standard TypeScript and JavaScript coding conventions and best
